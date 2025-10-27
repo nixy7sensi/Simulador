@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel Simulado</title>
+  <meta name="viewport" content="width=400, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #181a20;
+      --bg2: #232531;
+      --accent: #ff2c2c;
+      --green: #3dfc5a;
+      --text: #fff;
+      --text2: #bfc9da;
+      --gray: #7580a8;
+      --slider-bg: #232531;
+      --slider-active: #ff2c2c;
+      --sidebar-hover: #272937;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: #111217;
+      color: var(--text);
+      min-height: 100vh;
+    }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 70px;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 0;
+      z-index: 20;
+      box-shadow: 2px 0 16px #0004;
+      gap: 0.1rem;
+    }
+    .sidebar-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      margin: 1.5rem 0 0.1rem 0;
+      cursor: pointer;
+      transition: background 0.16s, color 0.16s, box-shadow 0.18s;
+      padding: 0;
+      outline: none;
+      width: 54px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 1.1rem;
+      position: relative;
+      box-shadow: none;
+    }
+    .sidebar-btn svg {
+      width: 32px;
+      height: 32px;
+      pointer-events: none;
+      transition: fill 0.16s, color 0.16s;
+      display: block;
+    }
+    .sidebar-btn.active, .sidebar-btn:hover, .sidebar-btn:focus {
+      color: var(--accent);
+      background: var(--sidebar-hover);
+      box-shadow: 0 0 0 2px var(--accent)33;
+    }
+    .sidebar-btn.active svg,
+    .sidebar-btn:hover svg,
+    .sidebar-btn:focus svg {
+      fill: var(--accent);
+      color: var(--accent);
+    }
+    .page-container {
+      margin-left: 70px;
+      width: calc(100vw - 70px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background: #111217;
+      transition: margin 0.2s;
+    }
+    .painel {
+      width: 370px;
+      margin: 2rem auto;
+      background: var(--bg);
+      border-radius: 2rem;
+      box-shadow: 0 4px 24px #000a;
+      padding: 2rem;
+      position: relative;
+      min-height: 620px;
+      margin-bottom: 3rem;
+      transition: background 0.2s;
+    }
+    .main-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2.5rem 0 1.5rem 0;
+    }
+    .circle-btn {
+      width: 160px;
+      height: 160px;
+      background: var(--bg2);
+      border: 5px solid var(--accent);
+      border-radius: 50%;
+      color: var(--accent);
+      font-size: 3.4rem;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: color 0.25s, background 0.25s;
+      user-select: none;
+    }
+    .circle-btn.on {
+      color: var(--green);
+    }
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin: 2rem 0 1.5rem 0;
+    }
+    .stat {
+      color: var(--text2);
+      font-size: 1.7rem;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 90px;
+    }
+    .stat.on {
+      color: var(--green);
+    }
+    .stat span {
+      font-size: 1rem;
+      color: var(--text2);
+      font-weight: normal;
+      margin-top: 0.1rem;
+    }
+    .section-title {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: var(--text2);
+      margin: 2rem 0 1rem 0;
+      letter-spacing: 0.02em;
+    }
+    .quick-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .quick-item {
+      display: flex;
+      align-items: center;
+      background: var(--bg2);
+      border-radius: 1rem;
+      padding: 1.2rem 1rem;
+      font-weight: 600;
+      margin-bottom: 0.1rem;
+    }
+    .quick-label {
+      margin-left: 1.3rem;
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+    .toggle-switch {
+      position: relative;
+      width: 46px;
+      height: 26px;
+      margin-right: 0.1rem;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background: var(--slider-bg);
+      border-radius: 26px;
+      transition: background 0.2s;
+    }
+    .toggle-switch input:checked + .slider {
+      background: var(--slider-active);
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 4px; bottom: 4px;
+      background: var(--text2);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+    .toggle-switch input:checked + .slider:before {
+      transform: translateX(20px);
+      background: #fff;
+    }
+    .footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: var(--gray);
+      font-size: 1rem;
+    }
+    .notification {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      padding: 0.8rem 1.6rem;
+      border-radius: 1rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+      z-index: 10;
+      box-shadow: 0 2px 14px #0007;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .notification.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .painel-interno .painel-label {
+      font-size: 1.13rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .painel-control-list { display: flex; flex-direction: column; gap: 2.3rem; margin-bottom: 2.5rem; }
+    .painel-control-item { display: flex; align-items: center; gap: 1.1rem; }
+    .painel-control-item .icon {
+      width: 48px; height: 48px; background: var(--bg2); border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 2rem;
+    }
+    .painel-control-item .label { font-size: 1.15rem; font-weight: 600; color: #fff; }
+    .painel-control-slider { margin-top: 2.1rem; margin-bottom: 2rem; }
+    .painel-control-slider label { color: var(--text2); font-size: 1.05rem; display: block; margin-bottom: 0.6rem; }
+    .custom-slider { width: 100%; margin: 0.2rem 0 0.8rem 0; }
+    .custom-slider input[type=range] { width: 100%; height: 6px; background: var(--slider-bg); border-radius: 5px; outline: none; }
+    .custom-slider input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 23px; height: 23px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid #1d1e23;
+      transition: background 0.2s; margin-top: -8px;
+    }
+    .custom-slider input[type=range]:focus::-webkit-slider-thumb { background: var(--green); }
+    .custom-slider .slider-value { position: absolute; right: 0; top: 0; color: var(--accent); font-weight: bold; font-size: 1.2rem; }
+    .sens-section { margin-bottom: 1.6rem; background: var(--bg2); border-radius: 1rem; padding: 1.2rem; display: flex; flex-direction: column; gap: 1.3rem; }
+    .sens-label { font-size: 1.13rem; font-weight: 700; color: #fff; background: var(--accent); padding: 0.4rem 1.3rem; border-radius: 0.9rem; margin-bottom: 1.3rem; display: inline-block; }
+    .sens-slider-row { display: flex; align-items: center; gap: 1.1rem; margin-bottom: 0.5rem; }
+    .sens-slider-name { min-width: 100px; font-weight: 600; }
+    .sens-slider-value { color: var(--accent); margin-left: auto; font-size: 1.06rem; font-weight: 700; }
+    .mira-label { font-size: 1.13rem; font-weight: 700; color: #fff; background: var(--accent); padding: 0.4rem 1.3rem; border-radius: 0.9rem; margin-bottom: 1.3rem; display: inline-block; }
+    .mira-func-list { margin-top: 1.1rem; display: flex; flex-direction: column; gap: 1.35rem; }
+    .mira-func-item { display: flex; align-items: center; gap: 1.1rem; }
+    .mira-func-name { min-width: 110px; font-weight: 600; color: #fff; font-size: 1.07rem; display: flex; align-items: center; gap: 0.6rem; }
+    .opt-section { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-bottom: 2.1rem; }
+    .opt-card { flex: 1 1 44%; min-width: 150px; background: var(--bg2); border-radius: 1rem; padding: 1.1rem 1rem; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; min-height: 80px; }
+    .opt-card .opt-title { font-weight: 700; font-size: 1.09rem; }
+    .opt-card .opt-desc { color: var(--text2); font-size: 0.97rem; margin-top: 0.2rem; }
+    .opt-btn { margin-top: 1.5rem; width: 100%; background: #232a36; border: none; border-radius: 0.8rem; color: #fff; font-size: 1.18rem; font-weight: bold; padding: 1.1rem 0; cursor: pointer; transition: background 0.18s; }
+    .opt-btn:active { background: var(--accent); }
+    .ia-form { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 2rem; }
+    .ia-label { font-size: 1.13rem; font-weight: 700; color: #fff; background: var(--accent); padding: 0.4rem 1.3rem; border-radius: 0.9rem; display: inline-block; margin-bottom: 1.3rem; }
+    .ia-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .ia-field label { color: var(--text2); font-size: 1.06rem; font-weight: 600; }
+    .ia-field input, .ia-field select { background: var(--bg2); border: none; border-radius: 0.8rem; color: #fff; font-size: 1.13rem; padding: 1.1rem 1rem; margin-top: 0.2rem; outline: none; }
+    .ia-btn { background: var(--accent); border: none; border-radius: 0.8rem; color: #fff; font-size: 1.18rem; font-weight: bold; padding: 1.1rem 0; margin-top: 1.1rem; cursor: pointer; transition: background 0.18s; display: flex; align-items: center; justify-content: center; gap: 0.8rem; }
+    .ia-btn:active { background: var(--green);}
+    /* Notificação de vendas */
+    #vendaNotificacao {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--accent);
+      color: #fff;
+      padding: 1.1rem 2.2rem;
+      border-radius: 1.2rem;
+      font-size: 1.18rem;
+      font-weight: bold;
+      box-shadow: 0 2px 18px #0006;
+      cursor: pointer;
+      z-index: 100;
+      transition: opacity 0.2s;
+      opacity: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    #vendaNotificacao.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    @media (max-width: 500px) {
+      .painel { width: 98vw; border-radius: 0; min-height: 90vh; }
+      .page-container { width: 100vw; margin-left: 70px; }
+      .sidebar { width: 70px; min-height: 100vh; }
+      #vendaNotificacao { right: 6px; left: 6px; bottom: 8px; font-size: 1rem; padding: 0.7rem 1rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <button class="sidebar-btn active" data-page="main" title="Principal">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2v10m5.657-5.657a8 8 0 11-11.314 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="sidebar-btn" data-page="control" title="Controle">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zm7.94-3a8.001 8.001 0 01-1.11 3.87l2.12 2.12-2.12 2.12-2.12-2.12A8.001 8.001 0 0112 20v-3.06a8.001 8.001 0 01-3.87-1.11l-2.12 2.12-2.12-2.12 2.12-2.12A8.001 8.001 0 014 12h3.06A8.001 8.001 0 0112 4v3.06a8.001 8.001 0 013.87 1.11l2.12-2.12 2.12 2.12-2.12 2.12A8.001 8.001 0 0120 12z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="sidebar-btn" data-page="sens" title="Sensibilidade">
+      <svg viewBox="0 0 24 24" fill="none"><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></g></svg>
+    </button>
+    <button class="sidebar-btn" data-page="mira" title="Funções de Mira">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="sidebar-btn" data-page="otimizacao" title="Otimização">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="sidebar-btn" data-page="ia" title="IA Otimizadora">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M8 4a4 4 0 00-4 4v8a4 4 0 004 4M16 4a4 4 0 014 4v8a4 4 0 01-4 4M12 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <!-- BOTÃO DE VENDAS -->
+    <button class="sidebar-btn" id="vendasBtn" title="Comprar">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M4 7h16M4 7l1.6 9.6A2 2 0 007.6 19h8.8a2 2 0 002-2.4L20 7M9 11v2m3-2v2"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="page-container">
+    <!-- Painel Principal -->
+    <div id="page-main" class="painel">
+      <div class="main-btn">
+        <div id="circleBtn" class="circle-btn">OFF</div>
+      </div>
+      <div class="stats">
+        <div id="statPing" class="stat"><span>Ping</span>--</div>
+        <div id="statFps" class="stat"><span>FPS Estável</span>--</div>
+        <div id="statHs" class="stat"><span>Taxa de HS</span>+0%</div>
+      </div>
+      <div class="section-title">Funções Rápidas</div>
+      <div class="quick-list">
+        <div class="quick-item">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleMira">
+            <span class="slider"></span>
+          </label>
+          <span class="quick-label">Mira Gruda</span>
+        </div>
+        <div class="quick-item">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleCapa">
+            <span class="slider"></span>
+          </label>
+          <span class="quick-label">Só Capa / Anti-Peito</span>
+        </div>
+        <div class="quick-item">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleFps">
+            <span class="slider"></span>
+          </label>
+          <span class="quick-label">FPS no Talo</span>
+        </div>
+      </div>
+      <div class="footer">Painel Simulado</div>
+      <div id="notification" class="notification"></div>
+    </div>
+    <!-- As demais abas permanecem inalteradas, igual à versão anterior! -->
+    <!-- ... copie todas as abas do código anterior ... -->
+    <div id="page-control" class="painel" style="display:none;">
+      <div class="painel-interno">
+        <div style="color:var(--text2);margin-bottom:1.3rem;font-size:1.13rem;">Painel de Controle</div>
+        <div class="painel-control-list">
+          <div class="painel-control-item">
+            <span class="icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 18c4.418 0 8-3.582 8-8" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="4" stroke="currentColor" stroke-width="2"/></svg></span>
+            <span class="label">Ícone Flutuante</span>
+            <label class="toggle-switch" style="margin-left:auto;">
+              <input type="checkbox" id="toggleFloatIcon">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="painel-control-item">
+            <span class="icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5a8 8 0 00-16 0v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/></svg></span>
+            <span class="label">Notificações no Jogo</span>
+            <label class="toggle-switch" style="margin-left:auto;">
+              <input type="checkbox" id="toggleNotifGame">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="painel-control-slider">
+          <label for="rangeOpacidade">Opacidade do Painel</label>
+          <div class="custom-slider" style="position:relative;">
+            <input type="range" min="10" max="100" value="100" id="rangeOpacidade">
+            <span id="valOpacidade" class="slider-value" style="position:absolute;right:0;top:-2px;">100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-sens" class="painel" style="display:none;">
+      <div class="sens-label">Sensibilidade</div>
+      <div class="sens-section">
+        <div class="sens-slider-row">
+          <span class="sens-slider-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="2"/></svg> Geral</span>
+          <input type="range" min="0" max="100" value="100" id="sensGeral" style="flex:1;">
+          <span id="sensValGeral" class="sens-slider-value">100</span>
+        </div>
+        <div class="sens-slider-row">
+          <span class="sens-slider-name"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg> Ponto Vermelho</span>
+          <input type="range" min="0" max="100" value="95" id="sensVermelho" style="flex:1;">
+          <span id="sensValVermelho" class="sens-slider-value">95</span>
+        </div>
+        <div class="sens-slider-row">
+          <span class="sens-slider-name">2 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="2"/></svg> Mira 2x</span>
+          <input type="range" min="0" max="100" value="90" id="sens2x" style="flex:1;">
+          <span id="sensVal2x" class="sens-slider-value">90</span>
+        </div>
+        <div class="sens-slider-row">
+          <span class="sens-slider-name">4 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="2"/></svg> Mira 4x</span>
+          <input type="range" min="0" max="100" value="85" id="sens4x" style="flex:1;">
+          <span id="sensVal4x" class="sens-slider-value">85</span>
+        </div>
+      </div>
+    </div>
+    <div id="page-mira" class="painel" style="display:none;">
+      <div class="mira-label">Funções de Mira</div>
+      <div class="mira-func-list">
+        <div class="mira-func-item">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Mira Gruda</span>
+          <label class="toggle-switch" style="margin-left:auto;">
+            <input type="checkbox" id="miraGruda">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="mira-func-item">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg> Mira Travada</span>
+          <label class="toggle-switch" style="margin-left:auto;">
+            <input type="checkbox" id="miraTravada">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="mira-func-item" style="width:100%;">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="2"/></svg> Anti-Pinada</span>
+          <div class="custom-slider" style="flex:1;position:relative;">
+            <input type="range" min="0" max="100" value="0" id="antiPinada" style="width:110px;">
+            <span id="valAntiPinada" class="slider-value" style="right:0;">0</span>
+          </div>
+        </div>
+        <div class="mira-func-item">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="8" stroke="currentColor" stroke-width="2"/><rect x="8" y="8" width="8" height="8" rx="4" stroke="currentColor" stroke-width="2"/></svg> Aim FOV</span>
+          <label class="toggle-switch" style="margin-left:auto;">
+            <input type="checkbox" id="aimFov">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="mira-func-item">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Puxada Automática</span>
+          <label class="toggle-switch" style="margin-left:auto;">
+            <input type="checkbox" id="puxadaAuto">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="mira-func-item">
+          <span class="mira-func-name"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M2 12c4-8 16-8 20 0" stroke="currentColor" stroke-width="2"/></svg> Só Capa / Anti-Peito</span>
+          <label class="toggle-switch" style="margin-left:auto;">
+            <input type="checkbox" id="soCapaMira">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="page-otimizacao" class="painel" style="display:none;">
+      <div class="mira-label" style="background:var(--accent);">Otimização de Jogo</div>
+      <div class="opt-section">
+        <div class="opt-card">
+          <span class="opt-title">Otimizar Ping</span>
+          <span class="opt-desc">Reduzir lag.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optPing">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="opt-card">
+          <span class="opt-title">Limpar Cache</span>
+          <span class="opt-desc">Libertar memória.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optCache">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="opt-card">
+          <span class="opt-title">FPS no Talo</span>
+          <span class="opt-desc">Jogo mais liso.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optFps">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="opt-card">
+          <span class="opt-title">Modo Performance</span>
+          <span class="opt-desc">Acelerar CPU.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optPerf">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="opt-card">
+          <span class="opt-title">Anti-Aquecimento</span>
+          <span class="opt-desc">Resfriar CPU.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optCool">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="opt-card">
+          <span class="opt-title">Economia de Bateria</span>
+          <span class="opt-desc">Melhorar duração.</span>
+          <label class="toggle-switch" style="margin-top:.5rem;">
+            <input type="checkbox" id="optBat">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <button class="opt-btn" id="aplicarOtimizacoes">APLICAR OTIMIZAÇÕES</button>
+    </div>
+    <div id="page-ia" class="painel" style="display:none;">
+      <div class="ia-label">IA Otimizadora</div>
+      <form class="ia-form" id="iaForm" autocomplete="off">
+        <div class="ia-field">
+          <label for="iaModelo">1. Modelo do seu celular:</label>
+          <input id="iaModelo" placeholder="Ex: iPhone 8">
+        </div>
+        <div class="ia-field">
+          <label for="iaEstilo">2. Estilo de jogo?</label>
+          <select id="iaEstilo">
+            <option value="">Selecione...</option>
+            <option value="agressivo">Agressivo</option>
+            <option value="tático">Tático</option>
+            <option value="equilibrado">Equilibrado</option>
+          </select>
+        </div>
+        <button type="submit" class="ia-btn"><span style="display:inline-block;transform:rotate(-18deg)">✨</span> Gerar Configuração</button>
+      </form>
+    </div>
+  </div>
+  <!-- Notificação de vendas -->
+  <div id="vendaNotificacao">
+    <span>👉 Conheça a versão completa! <u>Clique aqui</u></span>
+  </div>
+  <script>
+    // Sidebar navegação
+    const pages = [
+      'main', 'control', 'sens', 'mira', 'otimizacao', 'ia'
+    ];
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(btn => {
+      btn.onclick = function() {
+        sidebarBtns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        pages.forEach(page => document.getElementById('page-'+page).style.display = 'none');
+        if (btn.dataset.page) {
+          document.getElementById('page-'+btn.dataset.page).style.display = '';
+        }
+      }
+    });
+
+    // BOTÃO DE VENDAS
+    document.getElementById('vendasBtn').onclick = function() {
+      window.open('https://sua-pagina-de-vendas.com', '_blank'); // TROQUE AQUI PELA SUA URL!
+    };
+
+    // Notificação de vendas - clicável
+    document.getElementById('vendaNotificacao').onclick = function() {
+      window.open('https://sua-pagina-de-vendas.com', '_blank'); // TROQUE AQUI PELA SUA URL!
+    };
+    // Para sumir depois de 8 segundos
+    setTimeout(() => {
+      document.getElementById('vendaNotificacao').classList.add('hide');
+    }, 8000);
+
+    // Taxa de HS animada
+    const statHs = document.getElementById('statHs');
+    let hsValue = 0, targetHsValue = 0, hsAnim = null;
+    function animateHS() {
+      if (Math.abs(hsValue - targetHsValue) < 1) {
+        hsValue = targetHsValue;
+        statHs.innerHTML = '<span>Taxa de HS</span>+'+Math.round(hsValue)+'%';
+        return;
+      }
+      hsValue += (targetHsValue - hsValue) * 0.12 + (targetHsValue > hsValue ? 0.7 : -0.7);
+      statHs.innerHTML = '<span>Taxa de HS</span>+'+Math.round(hsValue)+'%';
+      hsAnim = requestAnimationFrame(animateHS);
+    }
+    function updateHSFromToggles() {
+      const mira = document.getElementById('toggleMira').checked;
+      const capa = document.getElementById('toggleCapa').checked;
+      const fps = document.getElementById('toggleFps').checked;
+      // Cada um vale ~66%, todos juntos: 3*66 = 198% arredonda para 200%
+      let total = mira + capa + fps;
+      targetHsValue = Math.min(200, Math.round(total * 66.67));
+      cancelAnimationFrame(hsAnim);
+      animateHS();
+    }
+    ['toggleMira','toggleCapa','toggleFps'].forEach(id => {
+      document.getElementById(id).addEventListener('change', updateHSFromToggles);
+    });
+    // Página Principal (ON/OFF e toggles rápidos)
+    const circleBtn = document.getElementById('circleBtn');
+    const statPing = document.getElementById('statPing');
+    const statFps = document.getElementById('statFps');
+    let painelOn = false;
+    circleBtn.onclick = function() {
+      painelOn = !painelOn;
+      if (painelOn) {
+        circleBtn.textContent = 'ON';
+        circleBtn.classList.add('on');
+        statPing.classList.add('on');
+        statFps.classList.add('on');
+        statHs.classList.add('on');
+        statPing.innerHTML = '<span>Ping</span>45ms';
+        statFps.innerHTML = '<span>FPS Estável</span>75';
+        updateHSFromToggles();
+        showNotification('Painel ativado!');
+      } else {
+        circleBtn.textContent = 'OFF';
+        circleBtn.classList.remove('on');
+        statPing.classList.remove('on');
+        statFps.classList.remove('on');
+        statHs.classList.remove('on');
+        statPing.innerHTML = '<span>Ping</span>--';
+        statFps.innerHTML = '<span>FPS Estável</span>--';
+        targetHsValue = 0;
+        animateHS();
+        showNotification('Painel desativado!');
+      }
+    };
+    function addToggleNotif(id, nome) {
+      document.getElementById(id).addEventListener('change', function(e) {
+        showNotification(
+          this.checked ? nome + ' ativado!' : nome + ' desativado!'
+        );
+      });
+    }
+    addToggleNotif('toggleMira', 'Mira Gruda');
+    addToggleNotif('toggleCapa', 'Só Capa / Anti-Peito');
+    addToggleNotif('toggleFps', 'FPS no Talo');
+    addToggleNotif('toggleFloatIcon', 'Ícone Flutuante');
+    addToggleNotif('toggleNotifGame', 'Notificações no Jogo');
+    document.getElementById('rangeOpacidade').addEventListener('input', function() {
+      document.getElementById('valOpacidade').textContent = this.value;
+      document.querySelector('.painel').style.opacity = (this.value/100);
+    });
+    function updateSlider(idRange, idVal) {
+      const range = document.getElementById(idRange);
+      const val = document.getElementById(idVal);
+      range.addEventListener('input', function() {
+        val.textContent = this.value;
+      });
+    }
+    updateSlider('sensGeral','sensValGeral');
+    updateSlider('sensVermelho','sensValVermelho');
+    updateSlider('sens2x','sensVal2x');
+    updateSlider('sens4x','sensVal4x');
+    addToggleNotif('miraGruda', 'Mira Gruda');
+    addToggleNotif('miraTravada', 'Mira Travada');
+    addToggleNotif('aimFov', 'Aim FOV');
+    addToggleNotif('puxadaAuto', 'Puxada Automática');
+    addToggleNotif('soCapaMira', 'Só Capa / Anti-Peito');
+    document.getElementById('antiPinada').addEventListener('input', function() {
+      document.getElementById('valAntiPinada').textContent = this.value;
+    });
+    addToggleNotif('optPing', 'Otimizar Ping');
+    addToggleNotif('optCache', 'Limpar Cache');
+    addToggleNotif('optFps', 'FPS no Talo');
+    addToggleNotif('optPerf', 'Modo Performance');
+    addToggleNotif('optCool', 'Anti-Aquecimento');
+    addToggleNotif('optBat', 'Economia de Bateria');
+    document.getElementById('aplicarOtimizacoes').onclick = function() {
+      showNotification('Otimizações aplicadas!');
+    }
+    document.getElementById('iaForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      let modelo = document.getElementById('iaModelo').value.trim();
+      let estilo = document.getElementById('iaEstilo').value;
+      if(!modelo || !estilo) {
+        showNotification('Preencha todos os campos!');
+        return;
+      }
+      showNotification('Configuração gerada para ' + modelo + '!');
+    });
+    function showNotification(msg) {
+      const notif = document.getElementById('notification');
+      notif.textContent = msg;
+      notif.classList.add('show');
+      clearTimeout(notif._tmr);
+      notif._tmr = setTimeout(() => notif.classList.remove('show'), 1400);
+    }
+    // Inicializa valor visual
+    animateHS();
+  </script>
+</body>
+</html>
